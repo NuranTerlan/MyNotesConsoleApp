@@ -4,6 +4,7 @@ using System.Net.Mime;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
+using MoreLinq;
 using MyNotesConsoleApp.Business.Managers;
 using MyNotesConsoleApp.Business.Services;
 using MyNotesConsoleApp.Data;
@@ -77,7 +78,7 @@ namespace MyNotesConsoleApp
                                     case "y":
                                         string tagName =
                                             CommandHelper.AskAndReturnVariable(
-                                                "Enter tag name you want to sort your notes");
+                                                "Enter tag name you want to sort your notes", true);
                                         var tag = await tagsService.GetByNameAsync(tagName);
                                         if (tag != null) notes = await notesService.GetByTagNameAsync(tagName);
                                         else
@@ -105,12 +106,11 @@ namespace MyNotesConsoleApp
                                 {
                                     foreach (var note in notes)
                                     {
-                                        Console.WriteLine("---------------");
-                                        Console.WriteLine($"ID : {note.Id}\nTitle : {note.Title}\nNote : {note.Content}");
-                                        var tags = await notesService.GetTags(note.Id);
-                                        foreach (var tag in tags)
+                                        Console.WriteLine($"---------------\nID : {note.Id}\nTitle : {note.Title}\nNote : {note.Content}");
+                                        //note.NoteTags.ForEach(nt => Console.Write($"|{nt.Tag.Name}|"));
+                                        foreach (var nt in note.NoteTags)
                                         {
-                                            Console.Write($"|{tag}|");
+                                            Console.Write($"|{nt.Tag.Name}|");
                                         }
                                         Console.WriteLine("\n---------------");
                                     }
@@ -130,6 +130,7 @@ namespace MyNotesConsoleApp
                             }
                             else if (cmdForEntity == "--add")
                             {
+                                // required
                                 string title = String.Empty;
                                 do
                                 {
@@ -140,7 +141,9 @@ namespace MyNotesConsoleApp
                                     }
                                 } while (title == String.Empty);
 
+                                // optional
                                 string content = CommandHelper.AskAndReturnVariable("Note content");
+
                                 try
                                 {
                                     var newNote = new Note

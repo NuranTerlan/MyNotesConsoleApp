@@ -7,6 +7,6 @@ namespace MyNotesConsoleApp.Business.Services
     public interface INotesService : IBaseService<Note>
     {
         Task<List<Note>> GetByTagNameAsync(string tagName);
-        Task<List<Tag>> GetTags(int noteId);
+        Task<List<string>> GetTags(int noteId);
     }
 }

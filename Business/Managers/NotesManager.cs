@@ -21,7 +21,8 @@ namespace MyNotesConsoleApp.Business.Managers
 
         public async Task<List<Note>> GetAllAsync()
         {
-            return await _context.Notes.Include(n => n.NoteTags).ThenInclude(nt => nt.Tag).ToListAsync();
+            return await _context.Notes.Include(n => n.NoteTags)
+                .ThenInclude(nt => nt.Tag).ToListAsync();
         }
 
         public async Task<Note> GetByIdAsync(int entityId)
@@ -56,28 +57,21 @@ namespace MyNotesConsoleApp.Business.Managers
         public async Task<List<Note>> GetByTagNameAsync(string tagName)
         {
             tagName = tagName.ToLower();
-            //var searchedTag = await _context.Tags.Select(t => new {t.Id, t.Name}).
-            //    FirstOrDefaultAsync(t => t.Name.ToLower() == tagName.ToLower());
 
-            //var filteredNotes = await _context.Notes.Include(n => n.NoteTags.Where(nt => nt.TagId == searchedTag.Id))
-            //    .ThenInclude(nt => nt.Tag)
-            //    .ToListAsync();
-
-            var filteredNotes = await _context.NoteTags
-                .Include(nt => nt.Tag.Name.ToLower() == tagName)
-                .Select(nt => nt.Note)
+            var filteredNotes = await _context.Notes
                 .Include(n => n.NoteTags)
                 .ThenInclude(nt => nt.Tag)
+                .Where(n => n.NoteTags.Any(nt => nt.Tag.Name.ToLower() == tagName))
                 .ToListAsync();
 
             return filteredNotes;
         }
 
-        public async Task<List<Tag>> GetTags(int noteId)
+        public async Task<List<string>> GetTags(int noteId)
         {
             return await _context.NoteTags
-                .Include(nt => nt.Note.Id == noteId)
-                .Select(nt => nt.Tag)
+                .Where(nt => nt.Note.Id == noteId)
+                .Select(nt => nt.Tag.Name)
                 .ToListAsync();
         }
     }
