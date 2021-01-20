@@ -3,15 +3,17 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using MyNotesConsoleApp.Data;
 
 namespace MyNotesConsoleApp.Migrations
 {
     [DbContext(typeof(NoteAppDbContext))]
-    partial class NoteAppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20210120212944_UpdatedProp-FixedToNull")]
+    partial class UpdatedPropFixedToNull
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
