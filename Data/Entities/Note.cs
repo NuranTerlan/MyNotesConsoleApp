@@ -13,6 +13,7 @@ namespace MyNotesConsoleApp.Data.Entities
         public string Title { get; set; }
         public string Content { get; set; }
         public DateTime CreatedAt { get; set; }
+        public DateTime? UpdatedAt { get; set; } = null;
 
         public virtual ICollection<NoteTag> NoteTags { get; set; }
     }
