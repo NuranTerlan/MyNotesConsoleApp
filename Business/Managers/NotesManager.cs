@@ -32,24 +32,18 @@ namespace MyNotesConsoleApp.Business.Managers
 
         public async Task<bool> CreateAsync(Note entity)
         {
-            if (entity == null) return false;
-
             await _context.Notes.AddAsync(entity);
             return await _context.SaveChangesAsync() > 0;
         }
 
         public async Task<bool> UpdateAsync(Note entity)
         {
-            if (entity == null) return false;
-
             _context.Notes.Update(entity);
             return await _context.SaveChangesAsync() > 0;
         }
 
         public async Task<bool> DeleteAsync(Note entity)
         {
-            if (entity == null) return false;
-
             _context.Notes.Remove(entity);
             return await _context.SaveChangesAsync() > 0;
         }
