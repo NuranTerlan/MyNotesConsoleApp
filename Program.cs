@@ -102,11 +102,10 @@ namespace MyNotesConsoleApp
                                 }
                                 else
                                 {
+                                    Console.Write($"{notes.Count} notes found ...");
                                     foreach (var note in notes)
                                     {
-                                        Console.WriteLine($"\n---------------\nID : {note.Id}\nTitle : {note.Title}\nNote : {note.Content}");
-                                        note.NoteTags.ForEach(nt => Console.Write($"#{nt.Tag.Name} "));
-                                        Console.WriteLine("\n---------------");
+                                        NotesHelper.NoteLogger(note);
                                     }
                                 }
                             }
@@ -119,9 +118,7 @@ namespace MyNotesConsoleApp
                                 if (note == null) CommandHelper.Error("Database doesn't include note with this ID");
                                 else
                                 {
-                                    Console.WriteLine($"\n---------------\nID : {note.Id}\nTitle : {note.Title}\nNote : {note.Content}");
-                                    note.NoteTags.ForEach(nt => Console.Write($"#{nt.Tag.Name} "));
-                                    Console.WriteLine("\n---------------");
+                                    NotesHelper.NoteLogger(note);
                                 }
                             }
                             else if (cmdForEntity == "--add")
