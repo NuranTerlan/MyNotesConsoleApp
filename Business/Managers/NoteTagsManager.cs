@@ -27,8 +27,6 @@ namespace MyNotesConsoleApp.Business.Managers
 
         public async Task<bool> CreateAsync(NoteTag entity)
         {
-            if (entity == null) return false;
-
             await _context.NoteTags.AddAsync(entity);
             return await _context.SaveChangesAsync() > 0;
         }
