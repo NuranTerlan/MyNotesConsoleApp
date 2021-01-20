@@ -11,6 +11,7 @@ namespace MyNotesConsoleApp.Data.Entities
         [StringLength(50)]
         public string Name { get; set; }
         public DateTime CreatedAt { get; set; }
+        public DateTime? UpdatedAt { get; set; } = null;
 
         public virtual ICollection<NoteTag> NoteTags { get; set; }
     }
