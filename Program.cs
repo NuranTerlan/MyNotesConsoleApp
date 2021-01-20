@@ -1,8 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Net.Mime;
-using System.Runtime.CompilerServices;
-using System.Text;
 using System.Threading.Tasks;
 using MoreLinq;
 using MyNotesConsoleApp.Business.Managers;
@@ -18,6 +15,7 @@ namespace MyNotesConsoleApp
         {
             // Database Access
             await using var context = new NoteAppDbContext();
+            // Service Instances
             INotesService notesService = new NotesManager(context);
             ITagsService tagsService = new TagsManager(context);
             INoteTagsService noteTagsService = new NoteTagsManager(context);
@@ -55,7 +53,7 @@ namespace MyNotesConsoleApp
                 switch (initCmd)
                 {
                     case "--info":
-                        Console.WriteLine("Brief info about this program : MyNotesApp is created to store your notes in database. Help of this program you can add, update, delete and list (filter provided) your whole data. You can add note with tags. With this feature you can sort your notes by tag name. Best wishes!");
+                        Console.WriteLine("Brief info about this program :\nMyNotesApp is created to store your notes in database. \nHelp of this program you can add, update, delete and list (filter provided) your whole data. \nYou can add note with tags. With this feature you can sort your notes by tag name. Best wishes!");
                         break;
                     case "--data":
                         CommandHelper.List(dataCommands, true);
@@ -84,7 +82,7 @@ namespace MyNotesConsoleApp
                                         else
                                         {
                                             CommandHelper.Error($"\n{tagName} doesn't match any record tag in db!");
-                                            Console.WriteLine("\nWe give you notes without any sorting!");
+                                            Console.WriteLine("\nWe'll give you notes without any sorting!");
                                             notes = await notesService.GetAllAsync();
                                         }
                                         break;
@@ -93,25 +91,21 @@ namespace MyNotesConsoleApp
                                         break;
                                     default:
                                         CommandHelper.Wrong(filterAnswer);
-                                        Console.WriteLine("\nWe give you notes without any sorting!");
+                                        Console.WriteLine("\nWe'll give you notes without any sorting!");
                                         break;
 
                                 }
                                 if (notes.Count == 0)
                                 {
                                     Console.ForegroundColor = ConsoleColor.Yellow;
-                                    Console.WriteLine("\nNotes list is empty! Create new one with notes --add");
+                                    Console.WriteLine("\nNotes list is empty! Create new one with notes --add command");
                                 }
                                 else
                                 {
                                     foreach (var note in notes)
                                     {
-                                        Console.WriteLine($"---------------\nID : {note.Id}\nTitle : {note.Title}\nNote : {note.Content}");
-                                        //note.NoteTags.ForEach(nt => Console.Write($"|{nt.Tag.Name}|"));
-                                        foreach (var nt in note.NoteTags)
-                                        {
-                                            Console.Write($"|{nt.Tag.Name}|");
-                                        }
+                                        Console.WriteLine($"\n---------------\nID : {note.Id}\nTitle : {note.Title}\nNote : {note.Content}");
+                                        note.NoteTags.ForEach(nt => Console.Write($"#{nt.Tag.Name} "));
                                         Console.WriteLine("\n---------------");
                                     }
                                 }
@@ -125,7 +119,9 @@ namespace MyNotesConsoleApp
                                 if (note == null) CommandHelper.Error("Database doesn't include note with this ID");
                                 else
                                 {
-                                    Console.WriteLine($"\nID : {note.Id}\nTitle : {note.Title}\nNote : {note.Content}");
+                                    Console.WriteLine($"\n---------------\nID : {note.Id}\nTitle : {note.Title}\nNote : {note.Content}");
+                                    note.NoteTags.ForEach(nt => Console.Write($"#{nt.Tag.Name} "));
+                                    Console.WriteLine("\n---------------");
                                 }
                             }
                             else if (cmdForEntity == "--add")
@@ -153,7 +149,7 @@ namespace MyNotesConsoleApp
                                         CreatedAt = DateTime.Now
                                     };
                                     bool noteAdded = await notesService.CreateAsync(newNote);
-                                    if (noteAdded) Console.WriteLine($"Note#{newNote.Id} is added db successfully!");
+                                    if (noteAdded) CommandHelper.Success($"Note#{newNote.Id} is added db");
                                     else CommandHelper.Error("Problem occured in db");
 
                                     string tagAnswer = CommandHelper.YesOrNo("Do you want to add tags to your note");
@@ -163,8 +159,7 @@ namespace MyNotesConsoleApp
                                         case "y":
                                             string[] writtenTags = CommandHelper.AskAndReturnVariable("Note tags (ex: tag1 tag2)").Split(" ");
 
-                                            Console.ForegroundColor = ConsoleColor.Green;
-                                            Console.WriteLine("Tags are process ...");
+                                            Console.WriteLine("Tags are processing ...");
                                             foreach (var writtenTag in writtenTags)
                                             {
                                                 var tag = await tagsService.GetByNameAsync(writtenTag);
@@ -180,22 +175,21 @@ namespace MyNotesConsoleApp
                                                         bool tagAdded = await tagsService.CreateAsync(newTag);
                                                         if (tagAdded)
                                                         {
-                                                            Console.WriteLine($"{writtenTag} is added db successfully!");
+                                                            CommandHelper.Success($"{writtenTag} is added db");
                                                             bool notesTagAdded = await noteTagsService.CreateAsync(
                                                                 new NoteTag
                                                                 {
                                                                     NoteId = newNote.Id,
                                                                     TagId = newTag.Id
                                                                 });
-                                                            if (notesTagAdded) Console.WriteLine($"{writtenTag} is added Note#{newNote.Id} successfully!");
+                                                            if (notesTagAdded) CommandHelper.Success($"{writtenTag} is added Note#{newNote.Id}");
                                                             else CommandHelper.Error("Problem occured in db while adding tag to note");
                                                         }
                                                         else CommandHelper.Error("Problem occured in db while storing tag in database");
                                                     }
                                                     catch (Exception e)
                                                     {
-                                                        Console.WriteLine("Tags exception");
-                                                        Console.WriteLine(e);
+                                                        CommandHelper.Error($"Tags exception => {e}");
                                                     }
                                                 }
                                                 else
@@ -206,14 +200,13 @@ namespace MyNotesConsoleApp
                                                             NoteId = newNote.Id,
                                                             TagId = tag.Id
                                                         });
-                                                    if (notesExistTagAdded) Console.WriteLine($"{writtenTag} is added Note#{newNote.Id} successfully!");
+                                                    if (notesExistTagAdded) CommandHelper.Success($"{writtenTag} is added Note#{newNote.Id}");
                                                     else CommandHelper.Error("Problem occured in db while adding tag to note");
                                                 }
                                             }
                                             break;
                                         case "n":
-                                            Console.ForegroundColor = ConsoleColor.Green;
-                                            Console.WriteLine("Okey, no tag!");
+                                            Console.WriteLine("Ok, no tag!");
                                             break;
                                         default:
                                             CommandHelper.Error("You miss your chance. Try to add tags when you update the note");
@@ -222,23 +215,50 @@ namespace MyNotesConsoleApp
                                 }
                                 catch (Exception e)
                                 {
-                                    Console.WriteLine("Notes exception");
-                                    Console.WriteLine(e);
+                                    CommandHelper.Error($"Notes exception => {e}");
                                 }
                             }
                             else if (cmdForEntity == "--upd")
                             {
-                                // update note
+                                int noteId =
+                                    int.Parse(CommandHelper.AskAndReturnVariable("Id of destination note", true));
+                                var note = await notesService.GetByIdAsync(noteId);
+                                if (note == null) CommandHelper.Error($"Not found with {noteId} ID");
+                                else
+                                {
+                                    CommandHelper.Success($"Note#{noteId} is fetched");
+                                    string newTitle = CommandHelper.EditProp("Title", note.Title);
+                                    string newContent = CommandHelper.EditProp("Content", note.Content);
+
+                                    note.Title = newTitle;
+                                    note.Content = newContent;
+                                    note.UpdatedAt = DateTime.Now;
+
+                                    bool isUpdated = await notesService.UpdateAsync(note);
+                                    if (isUpdated) CommandHelper.Success($"\nNote#{noteId} is updated");
+                                    else CommandHelper.Error("Problem happened in db");
+                                }
                             }
                             else if (cmdForEntity == "--del")
                             {
-                                // delete note
+                                int noteId =
+                                    int.Parse(CommandHelper.AskAndReturnVariable("Id of note you want to delete",
+                                        true));
+                                var note = await notesService.GetByIdAsync(noteId);
+                                if (note == null) CommandHelper.Error($"Not found with {noteId} ID");
+                                else
+                                {
+                                    bool isRemoved = await notesService.DeleteAsync(note);
+                                    if (isRemoved) CommandHelper.Success($"Note#{noteId} is deleted");
+                                    else CommandHelper.Error("We have a problem in our db");
+                                }
                             }
                             else CommandHelper.Wrong(cmdForEntity);
                         }
                         else if (entity == "tags")
                         {
                             // logical code blocks about tags' processes
+                            CommandHelper.Error("Add commands for tags before");
                         }
                         break;
                     case "--commands":
