@@ -11,7 +11,8 @@ namespace MyNotesConsoleApp
             string updatedTime = note.UpdatedAt == null
                 ? ""
                 : $"\nUpdated : {note.UpdatedAt}";
-            Console.WriteLine($"\n---------------\nID : {note.Id}\nTitle : {note.Title}\nNote : {note.Content}\nCreated : {note.CreatedAt}{updatedTime}");
+            Console.WriteLine($"\n---------------\nID : {note.Id}\nTitle : {note.Title}" +
+                              $"\nNote : {note.Content}\nCreated : {note.CreatedAt}{updatedTime}");
             note.NoteTags.ForEach(nt => Console.Write($"#{nt.Tag.Name} "));
             Console.WriteLine("\n---------------");
         }
