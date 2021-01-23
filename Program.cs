@@ -33,17 +33,18 @@ namespace MyNotesConsoleApp
             };
             Dictionary<string, string> dataCommands = new Dictionary<string, string>
             {
-                { "{entity-name} --get", "get all data from database" },
-                { "{entity-name} --get-id", "get specific entity by its unique ID" },
-                { "{entity-name} --add", "add new item to database" },
-                { "{entity-name} --upd", "update exist item on database" },
-                { "{entity-name} --del", "delete specific entity" }
+                { "--get", "get all data from database" },
+                { "--get-id", "get specific entity by its unique ID" },
+                { "--add", "add new item to database" },
+                { "--upd", "update exist item on database" },
+                { "--del", "delete specific entity" }
             };
 
             // Greeting
             Console.ForegroundColor = ConsoleColor.White;
             Console.WriteLine($"~~ Welcome to MyNotesApp, {greetingName}!");
 
+            // Opening at the very first time
             CommandHelper.List(initialCommands);
 
             while (isMenuOpen)
