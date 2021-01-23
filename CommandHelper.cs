@@ -14,7 +14,7 @@ namespace MyNotesConsoleApp
             Console.ForegroundColor = ConsoleColor.White;
             foreach (var (key, value) in commands)
             {
-                Console.WriteLine($"    {key} ( {value} )");
+                Console.WriteLine($"    {(isData ? "{entity-name}" : "")} {key} ( {value} )");
             }
         }
 
