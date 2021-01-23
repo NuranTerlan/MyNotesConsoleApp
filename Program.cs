@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using MoreLinq;
 using MyNotesConsoleApp.Business.Managers;
 using MyNotesConsoleApp.Business.Services;
 using MyNotesConsoleApp.Data;
@@ -13,6 +12,8 @@ namespace MyNotesConsoleApp
     {
         static async Task Main(string[] args)
         {
+            Console.Title = "Notes Manager"; // change title of opened console we work
+
             // Database Access
             await using var context = new NoteAppDbContext();
             // Service Instances
@@ -41,8 +42,20 @@ namespace MyNotesConsoleApp
             };
 
             // Greeting
+            string appNameASCII = @"
+                 ███▄ ▄███▓▓██   ██▓ ███▄    █  ▒█████  ▄▄▄█████▓▓█████   ██████  ▄▄▄       ██▓███   ██▓███  
+                ▓██▒▀█▀ ██▒ ▒██  ██▒ ██ ▀█   █ ▒██▒  ██▒▓  ██▒ ▓▒▓█   ▀ ▒██    ▒ ▒████▄    ▓██░  ██▒▓██░  ██▒
+                ▓██    ▓██░  ▒██ ██░▓██  ▀█ ██▒▒██░  ██▒▒ ▓██░ ▒░▒███   ░ ▓██▄   ▒██  ▀█▄  ▓██░ ██▓▒▓██░ ██▓▒
+                ▒██    ▒██   ░ ▐██▓░▓██▒  ▐▌██▒▒██   ██░░ ▓██▓ ░ ▒▓█  ▄   ▒   ██▒░██▄▄▄▄██ ▒██▄█▓▒ ▒▒██▄█▓▒ ▒
+                ▒██▒   ░██▒  ░ ██▒▓░▒██░   ▓██░░ ████▓▒░  ▒██▒ ░ ░▒████▒▒██████▒▒ ▓█   ▓██▒▒██▒ ░  ░▒██▒ ░  ░
+                ░ ▒░   ░  ░   ██▒▒▒ ░ ▒░   ▒ ▒ ░ ▒░▒░▒░   ▒ ░░   ░░ ▒░ ░▒ ▒▓▒ ▒ ░ ▒▒   ▓▒█░▒▓▒░ ░  ░▒▓▒░ ░  ░
+                ░  ░      ░ ▓██ ░▒░ ░ ░░   ░ ▒░  ░ ▒ ▒░     ░     ░ ░  ░░ ░▒  ░ ░  ▒   ▒▒ ░░▒ ░     ░▒ ░     
+                ░      ░    ▒ ▒ ░░     ░   ░ ░ ░ ░ ░ ▒    ░         ░   ░  ░  ░    ░   ▒   ░░       ░░       
+                       ░    ░ ░              ░     ░ ░              ░  ░      ░        ░  ░                  
+                            ░ ░                                                                              
+            "; // ascii art generator reference : http://patorjk.com/software/taag/#p=display&f=Bloody&t=MyNotesApp
             Console.ForegroundColor = ConsoleColor.White;
-            Console.WriteLine($"~~ Welcome to MyNotesApp, {greetingName}!");
+            Console.WriteLine($"~~ Welcome to MyNotesApp, {greetingName}!\n\n{appNameASCII}\n");
 
             // Opening at the very first time
             CommandHelper.List(initialCommands);
