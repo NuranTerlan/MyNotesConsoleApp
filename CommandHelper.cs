@@ -94,7 +94,6 @@ namespace MyNotesConsoleApp
         {
             int pos = Console.CursorLeft;
             int initPos = pos;
-            ConsoleKeyInfo info;
             List<char> chars = new List<char>();
             if (string.IsNullOrEmpty(defaultStr) == false)
             {
@@ -111,7 +110,7 @@ namespace MyNotesConsoleApp
                 Console.Write(' ');
                 Console.CursorLeft = pos + 1;
 
-                info = Console.ReadKey(true);
+                ConsoleKeyInfo info = Console.ReadKey(true);
 
                 if (info.Key == ConsoleKey.Backspace 
                     && Console.CursorLeft > initPos
