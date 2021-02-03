@@ -48,7 +48,7 @@ namespace MyNotesConsoleApp
         public static void Success(string successMsg)
         {
             Console.ForegroundColor = ConsoleColor.Green;
-            Console.WriteLine($"{successMsg} successfully --------");
+            Console.WriteLine($"\n{successMsg} successfully --------");
             Console.ForegroundColor = ConsoleColor.White;
         }
 
@@ -68,7 +68,7 @@ namespace MyNotesConsoleApp
 
         public static string EditProp(string propName, string prop)
         {
-            string askForProp = YesOrNo($"Do you want to change {propName}");
+            string askForProp = YesOrNo($"\nDo you want to change {propName}");
             string editedString;
             switch (askForProp)
             {
@@ -117,7 +117,7 @@ namespace MyNotesConsoleApp
                     && Console.CursorLeft <= (initPos + chars.Count))
                 {
                     chars.RemoveAt(pos - initPos);
-                    if (pos > initPos) pos--;
+                    if (pos >= initPos) pos--;
                 }
                 else if (info.Key == ConsoleKey.Spacebar)
                 {
