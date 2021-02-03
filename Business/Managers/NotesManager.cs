@@ -60,13 +60,5 @@ namespace MyNotesConsoleApp.Business.Managers
 
             return filteredNotes;
         }
-
-        public async Task<List<string>> GetTags(int noteId)
-        {
-            return await _context.NoteTags
-                .Where(nt => nt.Note.Id == noteId)
-                .Select(nt => nt.Tag.Name)
-                .ToListAsync();
-        }
     }
 }
