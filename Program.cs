@@ -255,7 +255,7 @@ namespace MyNotesConsoleApp
                                         note.UpdatedAt = DateTime.Now;
 
                                         bool isUpdated = await notesService.UpdateAsync(note);
-                                        if (isUpdated) CommandHelper.Success($"\nNote#{noteId} is updated");
+                                        if (isUpdated) CommandHelper.Success($"Note#{noteId} is updated");
                                         else CommandHelper.Error("Problem happened in db");
                                     }
 
