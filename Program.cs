@@ -15,7 +15,7 @@ namespace MyNotesConsoleApp
             Console.Title = "Notes Manager"; // change title of opened console we work
 
             // Database Access
-            await using var context = new NoteAppDbContext();
+            var context = new NoteAppDbContext();
             // Service Instances
             INotesService notesService = new NotesManager(context);
             ITagsService tagsService = new TagsManager(context);
