@@ -39,7 +39,7 @@ namespace MyNotesConsoleApp
                 { "--add", "add new item to database" },
                 { "--upd", "update exist item on database" },
                 { "--del", "delete specific entity" }
-            };
+            }; // dict reference https://www.tutorialsteacher.com/csharp/csharp-dictionary
 
             // Greeting
             string appNameASCII = @"
