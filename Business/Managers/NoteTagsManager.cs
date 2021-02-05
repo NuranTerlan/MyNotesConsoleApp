@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
 using MyNotesConsoleApp.Business.Services;
 using MyNotesConsoleApp.Data;
 using MyNotesConsoleApp.Data.Entities;
@@ -15,30 +16,15 @@ namespace MyNotesConsoleApp.Business.Managers
             _context = context;
         }
 
-        public Task<List<NoteTag>> GetAllAsync()
+        public async Task<List<NoteTag>> GetAllAsync()
         {
-            throw new System.NotImplementedException();
-        }
-
-        public Task<NoteTag> GetByIdAsync(int entityId)
-        {
-            throw new System.NotImplementedException();
+            return await _context.NoteTags.ToListAsync();
         }
 
         public async Task<bool> CreateAsync(NoteTag entity)
         {
             await _context.NoteTags.AddAsync(entity);
             return await _context.SaveChangesAsync() > 0;
-        }
-
-        public Task<bool> UpdateAsync(NoteTag entity)
-        {
-            throw new System.NotImplementedException();
-        }
-
-        public Task<bool> DeleteAsync(NoteTag entity)
-        {
-            throw new System.NotImplementedException();
         }
     }
 }
