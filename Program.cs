@@ -78,7 +78,7 @@ namespace MyNotesConsoleApp
                             break;
                         }
 
-                        string entity = dataCmd[0].ToLower(), cmdForEntity = dataCmd[1];
+                        string entity = dataCmd[0].ToLower(), cmdForEntity = dataCmd[1].ToLower();
                         if (entity == "notes")
                         {
                             switch (cmdForEntity)
