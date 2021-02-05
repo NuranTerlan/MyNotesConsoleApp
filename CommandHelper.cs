@@ -23,7 +23,7 @@ namespace MyNotesConsoleApp
             Console.ForegroundColor = ConsoleColor.Green;
             Console.Write("\n~command/ ");
             Console.ForegroundColor = ConsoleColor.White;
-            string command = Console.ReadLine();
+            string command = Console.ReadLine()?.Trim();
 
             return command;
         }
@@ -32,7 +32,7 @@ namespace MyNotesConsoleApp
         {
             string required = isRequired ? "required" : "optional";
             Console.Write($"{question} ({required}) : ");
-            string answer = Console.ReadLine();
+            string answer = Console.ReadLine()?.Trim();
 
             return answer;
         }
@@ -40,7 +40,7 @@ namespace MyNotesConsoleApp
         public static string YesOrNo(string question)
         {
             Console.Write($"{question}? (y/n) : ");
-            string answer = Console.ReadLine()?.ToLower();
+            string answer = Console.ReadLine()?.Trim().ToLower();
 
             return answer;
         }
