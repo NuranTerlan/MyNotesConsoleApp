@@ -146,7 +146,7 @@ namespace MyNotesConsoleApp
                                     case "--add":
                                         {
                                             // required
-                                            string title = String.Empty;
+                                            string title;
                                             do
                                             {
                                                 title = CommandHelper.AskAndReturnVariable("Title of new note", true);
