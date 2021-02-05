@@ -2,7 +2,7 @@
 
 namespace MyNotesConsoleApp.Business.Services
 {
-    public interface INoteTagsService : IBaseService<NoteTag>
+    public interface INoteTagsService
     {
         
     }
