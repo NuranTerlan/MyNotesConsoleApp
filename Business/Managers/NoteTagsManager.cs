@@ -16,11 +16,6 @@ namespace MyNotesConsoleApp.Business.Managers
             _context = context;
         }
 
-        public async Task<List<NoteTag>> GetAllAsync()
-        {
-            return await _context.NoteTags.ToListAsync();
-        }
-
         public async Task<bool> CreateAsync(NoteTag entity)
         {
             await _context.NoteTags.AddAsync(entity);
