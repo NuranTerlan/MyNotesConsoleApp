@@ -5,6 +5,7 @@ using MyNotesConsoleApp.Business.Managers;
 using MyNotesConsoleApp.Business.Services;
 using MyNotesConsoleApp.Data;
 using MyNotesConsoleApp.Data.Entities;
+using MyNotesConsoleApp.Extensions;
 
 namespace MyNotesConsoleApp
 {
@@ -12,11 +13,12 @@ namespace MyNotesConsoleApp
     {
         static async Task Main(string[] args)
         {
-            Console.Title = "Notes Manager"; // change title of opened console we work
+            Console.Title = "Notes Manager";
 
             // Database Access
             var context = new NoteAppDbContext();
-            // Service Instances
+
+            // Service Instance
             INotesService notesService = new NotesManager(context);
             ITagsService tagsService = new TagsManager(context);
             INoteTagsService noteTagsService = new NoteTagsManager(context);
@@ -32,14 +34,14 @@ namespace MyNotesConsoleApp
                 { "--clear", "clear console" },
                 { "--exit", "close this program" }
             };
-            Dictionary<string, string> dataCommands = new Dictionary<string, string>
+            var dataCommands = new Dictionary<string, string>
             {
                 { "--get", "get all data from database" },
                 { "--get-id", "get specific entity by its unique ID" },
                 { "--add", "add new item to database" },
                 { "--upd", "update exist item on database" },
                 { "--del", "delete specific entity" }
-            }; // dict reference https://www.tutorialsteacher.com/csharp/csharp-dictionary
+            };
 
             // Greeting
             string appNameASCII = @"
@@ -53,7 +55,7 @@ namespace MyNotesConsoleApp
                 ░      ░    ▒ ▒ ░░     ░   ░ ░ ░ ░ ░ ▒    ░         ░   ░  ░  ░    ░   ▒   ░░       ░░       
                        ░    ░ ░              ░     ░ ░              ░  ░      ░        ░  ░                  
                             ░ ░                                                                              
-            "; // ascii art generator reference : http://patorjk.com/software/taag/#p=display&f=Bloody&t=MyNotesApp
+                    ";
             Console.ForegroundColor = ConsoleColor.White;
             Console.WriteLine($"~~ Welcome to MyNotesApp, {greetingName}!\n\n{appNameASCII}\n");
 
@@ -67,10 +69,12 @@ namespace MyNotesConsoleApp
                 switch (initCmd)
                 {
                     case "--info":
-                        Console.WriteLine("Brief info about this program :\nMyNotesApp is created to store your notes in database. \nHelp of this program you can add, update, delete and list (filter provided) your whole data. \nYou can add note with tags. With this feature you can sort your notes by tag name. Best wishes!");
-                        break;
+                        {
+                            Console.WriteLine("Brief info about this program :\nMyNotesApp is created to store your notes in database. \nHelp of this program you can add, update, delete and list (filter provided) your whole data. \nYou can add note with tags. With this feature you can sort your notes by tag name. Best wishes!");
+                            break;
+                        }
                     case "--data":
-                    {
+                        {
                             CommandHelper.List(dataCommands, true);
                             string[] dataCmd = CommandHelper.Reader().Split(" ");
                             if (dataCmd.Length == 1)
@@ -79,45 +83,58 @@ namespace MyNotesConsoleApp
                                 break;
                             }
 
-                            string entity = dataCmd[0].ToLower(), cmdForEntity = dataCmd[1].ToLower();
+                            string entity = dataCmd[0], cmdForEntity = dataCmd[1];
+
                             if (entity == "notes")
                             {
                                 switch (cmdForEntity)
                                 {
-                                    case "--get":
+                                    case "--get": // ready to use
                                         {
-                                            string filterAnswer = CommandHelper.YesOrNo("Do you want to filter by tag name");
+                                            string filteredAnswer = CommandHelper
+                                                .YesOrNo("Do you want to filter by tag name");
+                                            bool isMatched = false;
                                             var notes = new List<Note>();
-                                            switch (filterAnswer)
+                                            switch (filteredAnswer)
                                             {
                                                 case "y":
-                                                    string tagName =
-                                                        CommandHelper.AskAndReturnVariable(
-                                                            "Enter tag name you want to sort your notes", true);
+                                                {
+                                                    string tagName = CommandHelper.AskAndReturnVariable(
+                                                        "Enter tag name you want to sort your notes", true);
                                                     var tag = await tagsService.GetByNameAsync(tagName);
-                                                    if (tag != null) notes = await notesService.GetByTagNameAsync(tagName);
+                                                    if (tag != null)
+                                                    {
+                                                        notes = await notesService.GetByTagNameAsync(tagName);
+                                                        isMatched = true;
+                                                    }
                                                     else
                                                     {
-                                                        CommandHelper.Error($"\n{tagName} doesn't match any record tag in db!");
-                                                        Console.WriteLine("\nWe'll give you notes without any sorting!");
-                                                        notes = await notesService.GetAllAsync();
+                                                        CommandHelper.Error(
+                                                            $"{tagName} doesn't match any tag in db");
+                                                        CommandHelper.Warning(
+                                                            $"Any note isn't found with #{tagName} tag");
                                                     }
+
                                                     break;
+                                                }
                                                 case "n":
+                                                {
                                                     notes = await notesService.GetAllAsync();
                                                     break;
+                                                }
                                                 default:
-                                                    CommandHelper.Wrong(filterAnswer);
-                                                    Console.WriteLine("\nWe'll give you notes without any sorting!");
+                                                {
+                                                    CommandHelper.Wrong(filteredAnswer);
+                                                    CommandHelper.Error(
+                                                        "\nWe'll give you notes without any sorting!");
                                                     break;
+                                                }
+                                            }
 
-                                            }
-                                            if (notes.Count == 0)
-                                            {
-                                                Console.ForegroundColor = ConsoleColor.Yellow;
-                                                Console.WriteLine("\nNotes list is empty! Create new one with notes --add command");
-                                            }
-                                            else
+                                            if (notes.Count == 0 && isMatched)
+                                                CommandHelper.Warning(
+                                                    "Notes list is empty! Create new one with 'notes --add' command");
+                                            else if (notes.Count != 0)
                                             {
                                                 bool isPlural = notes.Count > 1;
                                                 Console.Write($"{notes.Count} note{(isPlural ? "s" : "")} found ...");
@@ -129,35 +146,29 @@ namespace MyNotesConsoleApp
 
                                             break;
                                         }
-                                    case "--get-id":
+                                    case "--get-id": // ready to use
                                         {
-                                            Console.Write("ID of desired note integer : ");
-                                            int noteId = int.Parse(Console.ReadLine() ?? string.Empty);
+                                            int noteId = int.Parse(CommandHelper.AskAndReturnVariable(
+                                                "ID of desired note as an integer", true));
                                             var note = await notesService.GetByIdAsync(noteId);
 
-                                            if (note == null) CommandHelper.Error("Database doesn't include note with this ID");
-                                            else
-                                            {
-                                                NotesHelper.NoteLogger(note);
-                                            }
+                                            if (note != null) NotesHelper.NoteLogger(note);
+                                            else CommandHelper.Error($"Database doesn't include note with ID#{noteId}");
 
                                             break;
                                         }
-                                    case "--add":
+                                    case "--add": // ready to use
                                         {
-                                            // required
-                                            string title;
+                                            string title; // required field
                                             do
                                             {
                                                 title = CommandHelper.AskAndReturnVariable("Title of new note", true);
                                                 if (title == String.Empty)
-                                                {
-                                                    CommandHelper.Error("Title should take value. Enter required data");
-                                                }
+                                                    CommandHelper.Error("Title should take a value. Enter required data");
                                             } while (title == String.Empty);
 
-                                            // optional
-                                            string content = CommandHelper.AskAndReturnVariable("Note content");
+                                            // optional field
+                                            string content = CommandHelper.AskAndReturnVariable("Note content: ");
 
                                             try
                                             {
@@ -167,113 +178,122 @@ namespace MyNotesConsoleApp
                                                     Content = content,
                                                     CreatedAt = DateTime.Now
                                                 };
+
                                                 bool noteAdded = await notesService.CreateAsync(newNote);
-                                                if (noteAdded) CommandHelper.Success($"Note#{newNote.Id} is added db");
-                                                else CommandHelper.Error("Problem occured in db");
-
-                                                string tagAnswer = CommandHelper.YesOrNo("Do you want to add tags to your note");
-
-                                                switch (tagAnswer)
+                                                if (!noteAdded) CommandHelper.Error("Problem occured in db while creating a new element");
+                                                else
                                                 {
-                                                    case "y":
-                                                        string[] writtenTags = CommandHelper.AskAndReturnVariable("Note tags (ex: tag1 tag2)").Split(" ");
+                                                    CommandHelper.Success($"Note#{newNote.Id} is added db");
 
-                                                        Console.WriteLine("Tags are processing ...");
-                                                        foreach (var writtenTag in writtenTags)
-                                                        {
-                                                            var tag = await tagsService.GetByNameAsync(writtenTag);
-                                                            if (tag == null)
+                                                    string tagAnswer =
+                                                        CommandHelper.YesOrNo("Do you want to add tags to your note");
+                                                    switch (tagAnswer)
+                                                    {
+                                                        case "y":
                                                             {
-                                                                try
+                                                                string[] writtenTags = CommandHelper.AskAndReturnVariable(
+                                                                    "Note tags (ex: tag1 tag2)").Split(" ");
+
+                                                                CommandHelper.Warning("Tags are processing");
+                                                                foreach (var writtenTag in writtenTags)
                                                                 {
-                                                                    var newTag = new Tag
+                                                                    var tag = await tagsService.GetByNameAsync(writtenTag);
+                                                                    if (tag == null)
                                                                     {
-                                                                        Name = writtenTag,
-                                                                        CreatedAt = DateTime.Now,
-                                                                    };
-                                                                    bool tagAdded = await tagsService.CreateAsync(newTag);
-                                                                    if (tagAdded)
+                                                                        var newTag = new Tag
+                                                                        {
+                                                                            Name = writtenTag,
+                                                                            CreatedAt = DateTime.Now
+                                                                        };
+                                                                        bool tagAdded = await tagsService.CreateAsync(newTag);
+                                                                        if (!tagAdded) CommandHelper.Error(
+                                                                            "Problem occured in db while storing tag in database");
+                                                                        else
+                                                                        {
+                                                                            CommandHelper.Success($"{writtenTag} is added db");
+                                                                            bool notesTagAdded =
+                                                                                await noteTagsService.CreateAsync(
+                                                                                    new NoteTag
+                                                                                    {
+                                                                                        NoteId = newNote.Id,
+                                                                                        TagId = newTag.Id
+                                                                                    });
+                                                                            if (!notesTagAdded) CommandHelper.Error("Problem occured in db while adding tag to note");
+                                                                            else CommandHelper.Success($"{writtenTag} is added Note#{newNote.Id}");
+                                                                        }
+                                                                    }
+                                                                    else
                                                                     {
-                                                                        CommandHelper.Success($"{writtenTag} is added db");
-                                                                        bool notesTagAdded = await noteTagsService.CreateAsync(
+                                                                        bool notesExistTagAdded = await noteTagsService.CreateAsync(
                                                                             new NoteTag
                                                                             {
                                                                                 NoteId = newNote.Id,
-                                                                                TagId = newTag.Id
+                                                                                TagId = tag.Id
                                                                             });
-                                                                        if (notesTagAdded) CommandHelper.Success($"{writtenTag} is added Note#{newNote.Id}");
-                                                                        else CommandHelper.Error("Problem occured in db while adding tag to note");
+                                                                        if (!notesExistTagAdded) CommandHelper.Error("Problem occured in db while adding existing tag to note");
+                                                                        else CommandHelper.Success($"{writtenTag} is added Note#{newNote.Id}");
                                                                     }
-                                                                    else CommandHelper.Error("Problem occured in db while storing tag in database");
                                                                 }
-                                                                catch (Exception e)
-                                                                {
-                                                                    CommandHelper.Error($"Tags exception => {e}");
-                                                                }
+
+                                                                break;
                                                             }
-                                                            else
+                                                        case "n":
                                                             {
-                                                                bool notesExistTagAdded = await noteTagsService.CreateAsync(
-                                                                    new NoteTag
-                                                                    {
-                                                                        NoteId = newNote.Id,
-                                                                        TagId = tag.Id
-                                                                    });
-                                                                if (notesExistTagAdded) CommandHelper.Success($"{writtenTag} is added Note#{newNote.Id}");
-                                                                else CommandHelper.Error("Problem occured in db while adding tag to note");
+                                                                CommandHelper.Warning("Oka, no tag");
+                                                                break;
                                                             }
-                                                        }
-                                                        break;
-                                                    case "n":
-                                                        Console.WriteLine("Ok, no tag!");
-                                                        break;
-                                                    default:
-                                                        CommandHelper.Error("You miss your chance. Try to add tags when you update the note");
-                                                        break;
+                                                        default:
+                                                            {
+                                                                CommandHelper.Error(
+                                                                    "You miss your chance. Try to add tags when you update the note");
+                                                                break;
+                                                            }
+                                                    }
                                                 }
                                             }
                                             catch (Exception e)
                                             {
                                                 CommandHelper.Error($"Notes exception => {e}");
-                                            }
+                                                throw;
+                                            } // adding try
 
                                             break;
                                         }
-                                    case "--upd":
+                                    case "--upd": // ready to use
                                         {
-                                            int noteId =
-                                                int.Parse(CommandHelper.AskAndReturnVariable("Id of destination note", true));
+                                            int noteId = int.Parse(CommandHelper.AskAndReturnVariable(
+                                                "Id of destination note", true));
                                             var note = await notesService.GetByIdAsync(noteId);
-                                            if (note == null) CommandHelper.Error($"Not found with {noteId} ID");
+                                            if (note == null) CommandHelper.Error($"Note isn't found with {noteId} ID");
                                             else
                                             {
                                                 CommandHelper.Success($"Note#{noteId} is fetched");
-                                                string newTitle = CommandHelper.EditProp("Title", note.Title);
-                                                string newContent = CommandHelper.EditProp("Content", note.Content);
+                                                string newTitle = CommandHelper.EditStringProp("Title", note.Title);
+                                                string newContent = CommandHelper.EditStringProp("Content", note.Content);
 
                                                 note.Title = newTitle;
                                                 note.Content = newContent;
                                                 note.UpdatedAt = DateTime.Now;
 
                                                 bool isUpdated = await notesService.UpdateAsync(note);
-                                                if (isUpdated) CommandHelper.Success($"Note#{noteId} is updated");
-                                                else CommandHelper.Error("Problem happened in db");
+                                                if (!isUpdated) CommandHelper.Error("Problem happened in db while updating existing element");
+                                                else CommandHelper.Success($"Note#{noteId} is updated");
                                             }
 
                                             break;
                                         }
-                                    case "--del":
+                                    case "--del": // ready to use
                                         {
-                                            int noteId =
-                                                int.Parse(CommandHelper.AskAndReturnVariable("Id of note you want to delete",
-                                                    true));
+                                            int noteId = int.Parse(CommandHelper.AskAndReturnVariable(
+                                                "Id of note you want to delete", true));
+
                                             var note = await notesService.GetByIdAsync(noteId);
-                                            if (note == null) CommandHelper.Error($"Not found with {noteId} ID");
+                                            if (note == null) CommandHelper.Error($"Note isn't found with {noteId} ID");
                                             else
                                             {
                                                 bool isRemoved = await notesService.DeleteAsync(note);
-                                                if (isRemoved) CommandHelper.Success($"Note#{noteId} is deleted");
-                                                else CommandHelper.Error("We have a problem in our db");
+                                                if (!isRemoved) CommandHelper.Error("We have a problem in our db");
+                                                else CommandHelper.Success($"Note#{noteId} is deleted");
                                             }
 
                                             break;
@@ -285,27 +305,35 @@ namespace MyNotesConsoleApp
                             }
                             else if (entity == "tags")
                             {
-                                // logical code blocks about tags' processes
-                                CommandHelper.Error("Add commands for tags before");
+                                CommandHelper.Warning("Tags related operations should be here, but implement them first!");
+                                // tags related code
                             }
                             else CommandHelper.Wrong(entity);
+
                             break;
-                    }
+                        }
                     case "--commands":
-                        CommandHelper.List(initialCommands);
-                        break;
+                        {
+                            CommandHelper.List(initialCommands);
+                            break;
+                        }
                     case "--clear":
-                        Console.Clear();
-                        break;
+                        {
+                            Console.Clear();
+                            break;
+                        }
                     case "--exit":
-                        isMenuOpen = false;
-                        break;
+                        {
+                            isMenuOpen = false;
+                            break;
+                        }
                     default:
-                        CommandHelper.Wrong(initCmd);
-                        break;
+                        {
+                            CommandHelper.Wrong(initCmd);
+                            break;
+                        }
                 }
             }
-            // ReSharper disable once FunctionNeverReturns
         }
     }
 }
